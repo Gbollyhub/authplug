@@ -17,3 +17,8 @@ export async function validateHash(existing: string, incoming: string) {
 export async function generateToken() {
   return await crypto.randomBytes(32).toString("hex");
 }
+
+// deterministic SHA-256 hash — use this for tokens that need DB lookup (e.g. refresh tokens)
+export function hashToken(token: string) {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}

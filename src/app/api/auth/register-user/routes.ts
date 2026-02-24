@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { hashString } from "@/lib/auth";
+import { hashString, generateToken } from "@/lib/auth";
+import { redisClient, connectRedis } from "@/lib/redis";
+import { generateSecret, generateURI } from "otplib";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
+    await connectRedis();
     const body = await req.json();
-    const { customerId, email, password } = body;
+    const { customerId, email, password, redirectUrl } = body;
 
     // validate required fields
-    if (!customerId || !email || !password) {
+    if (!customerId || !email || !password || !redirectUrl) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 }
@@ -17,9 +20,7 @@ export async function POST(req: NextRequest) {
 
     // check if the customerId is valid
     const existingCustomer = await prisma.customer.findUnique({
-      where: {
-        id: customerId,
-      },
+      where: { id: customerId },
     });
 
     if (!existingCustomer) {
@@ -31,44 +32,36 @@ export async function POST(req: NextRequest) {
 
     // check if the user already exists
     const existingUser = await prisma.user.findUnique({
-      where: {
-        email,
-      },
+      where: { email },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "An account with this email already exists" },
+        {
+          error: "An AuthPlug account already exists for this email. Please log in instead — your account will be linked to this company automatically.",
+        },
         { status: 409 }
       );
     }
 
-    const hashPass = await hashString(password);
+    const hashedPassword = await hashString(password);
+    const totpSecret = generateSecret();
+    const qrUri = generateURI({ issuer: "AuthPlug", label: email, secret: totpSecret });
+    const tempToken = await generateToken();
 
-    const result = await prisma.$transaction(async (tx) => {
-      // create a new user
-      const newUser = await tx.user.create({
-        data: {
-          email,
-          password: hashPass,
-        },
-      });
-
-      // create a user customer relationship
-      await tx.usersOnCustomers.create({
-        data: {
-          userId: newUser.id,
-          customerId,
-          role: "user",
-        },
-      });
-
-      return { userId: newUser.id, customerId };
-    });
+    // store pending registration in Redis — do NOT write to DB yet
+    await redisClient.set(
+      `pending_reg:${tempToken}`,
+      JSON.stringify({ email, hashedPassword, customerId, totpSecret, redirectUrl }),
+      { EX: 600 } // 10 minutes to complete 2FA setup
+    );
 
     return NextResponse.json(
-      { message: "Account created successfully", data: result },
-      { status: 201 }
+      {
+        message: "Scan the QR code with your authenticator app, then submit your TOTP code to complete registration",
+        data: { tempToken, qrUri },
+      },
+      { status: 200 }
     );
   } catch (error) {
     console.error("Register user error:", error);

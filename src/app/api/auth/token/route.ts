@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validatePassword, generateToken } from "@/lib/auth";
 import { JWT_SECRET } from "@/lib/env";
 import { redisClient, connectRedis } from "@/lib/redis";
-import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 
 export async function POST(req: NextRequest) {
