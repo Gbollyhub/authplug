@@ -10,15 +10,28 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Customer {
-  id          String       @id @default(cuid())
-  name        String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  users       UsersOnCustomers[]
-  refreshTokens RefreshToken[]
+  id                  String               @id @default(cuid())
+  name                String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  users               UsersOnCustomers[]
+  refreshTokens       RefreshToken[]
+  allowedRedirectUrls AllowedRedirectUrl[]
+}
+
+model AllowedRedirectUrl {
+  id         String   @id @default(cuid())
+  origin     String   // e.g. "https://company.com"
+  customerId String
+  createdAt  DateTime @default(now())
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  @@unique([customerId, origin])
 }
 
 model User {

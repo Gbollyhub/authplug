@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateHash, generateToken } from "@/lib/auth";
 import { redisClient, connectRedis } from "@/lib/redis";
+import { validateRedirectUrl } from "@/lib/validateRedirectUrl";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
@@ -26,6 +27,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Customer account not found" },
         { status: 404 }
+      );
+    }
+
+    // validate redirectUrl against customer's registered origins
+    const isValidRedirect = await validateRedirectUrl(customerId, redirectUrl);
+    if (!isValidRedirect) {
+      return NextResponse.json(
+        { error: "Invalid redirect URL" },
+        { status: 403 }
       );
     }
 

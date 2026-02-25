@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { JWT_SECRET } from "./env";
 
 const SALT_ROUNDS = 12;
 
@@ -21,4 +23,9 @@ export async function generateToken() {
 // deterministic SHA-256 hash — use this for tokens that need DB lookup (e.g. refresh tokens)
 export function hashToken(token: string) {
   return crypto.createHash("sha256").update(token).digest("hex");
+}
+
+// verifies a JWT and returns its payload
+export function verifyToken(token: string): JwtPayload {
+  return jwt.verify(token, JWT_SECRET) as JwtPayload;
 }
