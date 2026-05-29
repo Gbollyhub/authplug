@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     const newRefreshTokenString = await generateToken();
     const newHashedRefreshToken = hashToken(newRefreshTokenString);
 
-    const [newToken] = await prisma.$transaction([
+    await prisma.$transaction([
       prisma.refreshToken.create({
         data: {
           token: newHashedRefreshToken,

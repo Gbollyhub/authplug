@@ -12,6 +12,7 @@ export default function RedirectUrlsSection() {
   const [newUrl, setNewUrl] = useState("");
 
   async function handleAdd(e: React.FormEvent) {
+    e.preventDefault();
     const ok = await add(newUrl);
     if (ok) setNewUrl("");
   }
