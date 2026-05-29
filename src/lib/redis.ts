@@ -1,13 +1,17 @@
 import { createClient } from "redis";
 
-const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const redisUrl = process.env.REDIS_URL;
+
+if (!redisUrl) {
+  throw new Error("REDIS_URL environment variable is not set");
+}
 
 let client: ReturnType<typeof createClient> | null = null;
 
 function getClient() {
   if (!client) {
     client = createClient({ url: redisUrl });
-    client.on("error", (err) => console.error("Redis error:", err));
+    client.on("error", (err) => console.error("[Redis]", err.message));
   }
   return client;
 }
