@@ -3,7 +3,7 @@
 AuthPlug is a modern, secure, **multi-tenant authentication and authorization platform** designed for SaaS and third-party applications. It provides centralized identity management, OAuth-style login flows, customer-based access control, and industry-standard token handling.
 
 AuthPlug enables users to authenticate once and securely access multiple applications while maintaining strict isolation between customers, roles, and sessions.
-
+https://authplug.vercel.app/
 ---
 
 ## ✨ Features
