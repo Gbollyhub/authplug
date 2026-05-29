@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redisClient, connectRedis } from "@/lib/redis";
+import { redisGet, redisDel } from "@/lib/redis";
 import { verify } from "otplib";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    await connectRedis();
     const body = await req.json();
     const { tempToken, totpCode } = body;
 
@@ -16,7 +15,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const raw = await redisClient.get(`pending_company_reg:${tempToken}`);
+    const raw = await redisGet(`pending_company_reg:${tempToken}`);
 
     if (!raw) {
       return NextResponse.json(
@@ -62,7 +61,7 @@ export async function POST(req: NextRequest) {
     });
 
     // clean up pending registration from Redis
-    await redisClient.del(`pending_company_reg:${tempToken}`);
+    await redisDel(`pending_company_reg:${tempToken}`);
 
     return NextResponse.json(
       {

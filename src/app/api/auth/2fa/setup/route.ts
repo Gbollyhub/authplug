@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateToken, hashToken } from "@/lib/auth";
-import { redisClient, connectRedis } from "@/lib/redis";
+import { redisGet, redisDel, redisSet } from "@/lib/redis";
 import { verify } from "otplib";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    await connectRedis();
     const body = await req.json();
     const { tempToken, totpCode } = body;
 
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const raw = await redisClient.get(`pending_reg:${tempToken}`);
+    const raw = await redisGet(`pending_reg:${tempToken}`);
 
     if (!raw) {
       return NextResponse.json(
@@ -59,7 +58,7 @@ export async function POST(req: NextRequest) {
     });
 
     // clean up pending registration from Redis
-    await redisClient.del(`pending_reg:${tempToken}`);
+    await redisDel(`pending_reg:${tempToken}`);
 
     // create refresh token
     const refreshTokenString = await generateToken();
@@ -77,13 +76,10 @@ export async function POST(req: NextRequest) {
     // generate authId for the redirect back to the company site
     const authId = await generateToken();
 
-    await redisClient.set(
+    await redisSet(
       `auth_id:${authId}`,
-      JSON.stringify({
-        authId,
-        user: { id: userId, email, customerId, role: "user" },
-      }),
-      { EX: 300 } // 5 minutes to exchange for a token
+      JSON.stringify({ authId, user: { id: userId, email, customerId, role: "user" } }),
+      { EX: 300 }
     );
 
     const res = NextResponse.json(

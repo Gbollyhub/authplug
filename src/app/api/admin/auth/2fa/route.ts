@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { signToken } from "@/lib/auth";
-import { redisClient, connectRedis } from "@/lib/redis";
+import { redisGet, redisDel } from "@/lib/redis";
 import { verify } from "otplib";
 
 export async function POST(req: NextRequest) {
   try {
-    await connectRedis();
     const body = await req.json();
     const { tempToken, totpCode } = body;
 
@@ -16,7 +15,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const raw = await redisClient.get(`pending_admin_login:${tempToken}`);
+    const raw = await redisGet(`pending_admin_login:${tempToken}`);
 
     if (!raw) {
       return NextResponse.json(
@@ -37,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 2FA passed — clean up pending session
-    await redisClient.del(`pending_admin_login:${tempToken}`);
+    await redisDel(`pending_admin_login:${tempToken}`);
 
     // sign a JWT for the admin dashboard (8-hour session)
     const adminToken = signToken({ userId, email, customerId, role }, "8h");

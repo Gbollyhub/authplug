@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateHash, generateToken } from "@/lib/auth";
-import { redisClient, connectRedis } from "@/lib/redis";
+import { redisSet } from "@/lib/redis";
 import { validateRedirectUrl } from "@/lib/validateRedirectUrl";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    await connectRedis();
     const body = await req.json();
     const { customerId, email, password, redirectUrl } = body;
 
@@ -92,7 +91,7 @@ export async function POST(req: NextRequest) {
     // credentials valid — store a pending login session for 2FA verification
     const tempToken = await generateToken();
 
-    await redisClient.set(
+    await redisSet(
       `pending_login:${tempToken}`,
       JSON.stringify({
         userId: existingUser.id,
@@ -102,7 +101,7 @@ export async function POST(req: NextRequest) {
         totpSecret: existingUser.totpSecret,
         redirectUrl,
       }),
-      { EX: 300 } // 5 minutes to complete 2FA
+      { EX: 300 }
     );
 
     return NextResponse.json(

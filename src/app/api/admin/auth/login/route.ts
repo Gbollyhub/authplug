@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateHash, generateToken } from "@/lib/auth";
-import { redisClient, connectRedis } from "@/lib/redis";
+import { redisSet } from "@/lib/redis";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    await connectRedis();
     const body = await req.json();
     const { email, password } = body;
 
@@ -60,7 +59,7 @@ export async function POST(req: NextRequest) {
     // credentials valid — store pending admin login session for TOTP verification
     const tempToken = generateToken();
 
-    await redisClient.set(
+    await redisSet(
       `pending_admin_login:${tempToken}`,
       JSON.stringify({
         userId: user.id,
@@ -69,7 +68,7 @@ export async function POST(req: NextRequest) {
         role: membership.role,
         totpSecret: user.totpSecret,
       }),
-      { EX: 300 } // 5 minutes to complete 2FA
+      { EX: 300 }
     );
 
     return NextResponse.json(

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hashString, generateToken } from "@/lib/auth";
-import { redisClient, connectRedis } from "@/lib/redis";
+import { redisSet } from "@/lib/redis";
 import { generateSecret, generateURI } from "otplib";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    await connectRedis();
     const body = await req.json();
     const { companyName, email, password } = body;
 
@@ -34,10 +33,10 @@ export async function POST(req: NextRequest) {
     const tempToken = await generateToken();
 
     // store pending company registration in Redis — do NOT write to DB yet
-    await redisClient.set(
+    await redisSet(
       `pending_company_reg:${tempToken}`,
       JSON.stringify({ companyName, email, hashedPassword, totpSecret }),
-      { EX: 600 } // 10 minutes to complete 2FA setup
+      { EX: 600 }
     );
 
     return NextResponse.json(

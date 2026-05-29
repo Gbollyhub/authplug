@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JWT_SECRET } from "@/lib/env";
-import { redisClient, connectRedis } from "@/lib/redis";
+import { redisGet, redisDel } from "@/lib/redis";
 import jwt from "jsonwebtoken";
 
 export async function POST(req: NextRequest) {
   try {
-    await connectRedis();
     const body = await req.json();
     const { customerId, authId } = body;
 
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const tempData = await redisClient.get(`auth_id:${authId}`);
+    const tempData = await redisGet(`auth_id:${authId}`);
 
     if (!tempData) {
       return NextResponse.json(
@@ -40,7 +39,7 @@ export async function POST(req: NextRequest) {
       { expiresIn: "1h" }
     );
 
-    redisClient.del(`auth_id:${authId}`);
+    await redisDel(`auth_id:${authId}`);
 
     const result = {
       token,
