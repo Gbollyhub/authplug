@@ -7,9 +7,9 @@ export async function POST(req: NextRequest) {
   try {
     await connectRedis();
     const body = await req.json();
-    const { email, password, customerId } = body;
+    const { email, password } = body;
 
-    if (!email || !password || !customerId) {
+    if (!email || !password) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 }
@@ -26,19 +26,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // verify this user is an admin for this customer
-    const membership = await prisma.usersOnCustomers.findUnique({
-      where: {
-        userId_customerId: { userId: user.id, customerId },
-      },
+    // find their admin membership (look up customer from the user's memberships)
+    const membership = await prisma.usersOnCustomers.findFirst({
+      where: { userId: user.id, role: "admin" },
     });
 
-    if (!membership || membership.role !== "admin") {
+    if (!membership) {
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }
       );
     }
+
+    const { customerId } = membership;
 
     // validate password
     const isPasswordValid = await validateHash(user.password, password);

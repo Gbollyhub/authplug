@@ -9,8 +9,7 @@ export default function AuthCard({ children }: AuthCardProps) {
         {children}
       </div>
       <p className="mt-6 text-xs text-neutral-400 text-center">
-        Secured by{" "}
-        <span className="font-semibold text-neutral-500">AuthPlug</span>
+        Secured by <span className="font-semibold text-neutral-500">AuthPlug</span>
       </p>
     </div>
   );

@@ -18,12 +18,12 @@ const styles: Record<AlertType, { wrapper: string; icon: string }> = {
     icon: "text-danger-500",
   },
   success: {
-    wrapper: "bg-success-50 border border-green-100 text-success-600",
-    icon: "text-success-500",
+    wrapper: "bg-neutral-50 border border-neutral-200 text-neutral-700",
+    icon: "text-neutral-600",
   },
   info: {
-    wrapper: "bg-brand-50 border border-brand-100 text-brand-700",
-    icon: "text-brand-500",
+    wrapper: "bg-neutral-50 border border-neutral-200 text-neutral-700",
+    icon: "text-neutral-500",
   },
 };
 
@@ -36,9 +36,7 @@ const icons: Record<AlertType, React.ElementType> = {
 export default function Alert({ type, message, className = "" }: AlertProps) {
   const Icon = icons[type];
   return (
-    <div
-      className={`flex items-start gap-3 px-4 py-3 rounded-xl text-sm ${styles[type].wrapper} ${className}`}
-    >
+    <div className={`flex items-start gap-3 px-4 py-3 rounded-xl text-sm ${styles[type].wrapper} ${className}`}>
       <Icon className={`w-5 h-5 flex-shrink-0 mt-0.5 ${styles[type].icon}`} />
       <span>{message}</span>
     </div>

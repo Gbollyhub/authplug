@@ -1,5 +1,3 @@
-import { Transition } from "@headlessui/react";
-
 type Variant = "primary" | "secondary" | "ghost";
 type Size = "sm" | "md" | "lg";
 
@@ -13,11 +11,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<Variant, string> = {
   primary:
-    "bg-brand-500 text-white hover:bg-brand-600 active:bg-brand-700 disabled:bg-neutral-200 disabled:text-neutral-400",
+    "bg-black text-white hover:bg-neutral-800 active:bg-neutral-900 disabled:bg-neutral-200 disabled:text-neutral-400",
   secondary:
     "bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50 active:bg-neutral-100 disabled:opacity-50",
   ghost:
-    "bg-transparent text-brand-600 hover:bg-brand-50 active:bg-brand-100 disabled:opacity-50",
+    "bg-transparent text-black hover:bg-neutral-100 active:bg-neutral-200 disabled:opacity-50",
 };
 
 const sizeStyles: Record<Size, string> = {
@@ -40,7 +38,7 @@ export default function Button({
     <button
       disabled={disabled || loading}
       className={[
-        "relative inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 cursor-pointer",
+        "relative inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 cursor-pointer",
         variantStyles[variant],
         sizeStyles[size],
         fullWidth ? "w-full" : "",
@@ -52,24 +50,9 @@ export default function Button({
     >
       {loading && (
         <span className="absolute inset-0 flex items-center justify-center">
-          <svg
-            className="animate-spin h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
+          <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
         </span>
       )}

@@ -1,0 +1,10 @@
+<svg viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
+  <!-- Shield body -->
+  <path d="M60 8 L110 28 L110 72 Q110 110 60 122 Q10 110 10 72 L10 28 Z" fill="#0a0a0a"/>
+  <!-- A — left leg -->
+  <polygon points="52,24 68,24 36,94 20,94" fill="white"/>
+  <!-- A — right leg -->
+  <polygon points="52,24 68,24 100,94 84,94" fill="white"/>
+  <!-- A — crossbar -->
+  <rect x="36" y="58" width="48" height="12" fill="white"/>
+</svg>

@@ -13,14 +13,14 @@ function CodeBlock({ code, language = "bash" }: { code: string; language?: strin
   }
 
   return (
-    <div className="relative group rounded-xl overflow-hidden border border-neutral-200 bg-neutral-900">
+    <div className="relative rounded-lg overflow-hidden border border-neutral-200 bg-neutral-900">
       <div className="flex items-center justify-between px-4 py-2 bg-neutral-800 border-b border-neutral-700">
         <span className="text-xs text-neutral-400 font-mono">{language}</span>
         <button
           onClick={copy}
           className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors"
         >
-          {copied ? <CheckIcon className="w-3.5 h-3.5 text-success-400" /> : <ClipboardDocumentIcon className="w-3.5 h-3.5" />}
+          {copied ? <CheckIcon className="w-3.5 h-3.5 text-white" /> : <ClipboardDocumentIcon className="w-3.5 h-3.5" />}
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
@@ -29,10 +29,10 @@ function CodeBlock({ code, language = "bash" }: { code: string; language?: strin
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function DocSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-3">
-      <h3 className="text-base font-semibold text-neutral-700">{title}</h3>
+      <h3 className="text-sm font-bold text-neutral-800 uppercase tracking-widest">{title}</h3>
       {children}
     </div>
   );
@@ -42,20 +42,24 @@ export default function ApiDocsSection({ customerId }: { customerId: string }) {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-semibold text-neutral-800">API Documentation</h2>
-        <p className="text-sm text-neutral-400 mt-1">
-          Everything you need to integrate AuthPlug into your application.
-        </p>
+        <h2 className="text-xl font-bold text-neutral-900 tracking-tight">API Documentation</h2>
+        <p className="text-sm text-neutral-400 mt-1">Everything you need to integrate AuthPlug into your application.</p>
       </div>
 
-      <Section title="1. Add your redirect URL">
+      {/* Company ID banner */}
+      <div className="flex items-center gap-3 p-4 bg-black rounded-xl">
+        <span className="text-sm text-white/60 font-medium">Your Company ID</span>
+        <code className="text-sm font-mono text-white flex-1 break-all">{customerId}</code>
+      </div>
+
+      <DocSection title="1. Add your redirect URL">
         <p className="text-sm text-neutral-500">
-          Before going live, add your app&apos;s callback URL in the <strong>Redirect URLs</strong> section.
+          Before going live, add your app&apos;s callback URL in the <strong className="text-neutral-700">Redirect URLs</strong> section.
           Only registered origins are permitted.
         </p>
-      </Section>
+      </DocSection>
 
-      <Section title="2. Redirect users to AuthPlug">
+      <DocSection title="2. Redirect users to AuthPlug">
         <p className="text-sm text-neutral-500">
           Link or redirect your users to AuthPlug&apos;s login or register page with your Company ID and
           the URL they should be sent back to after authentication.
@@ -68,9 +72,9 @@ https://authplug.com/register?customerId=${customerId}&redirectUrl=https://youra
 # Log in an existing user
 https://authplug.com/login?customerId=${customerId}&redirectUrl=https://yourapp.com/callback`}
         />
-      </Section>
+      </DocSection>
 
-      <Section title="3. Handle the callback">
+      <DocSection title="3. Handle the callback">
         <p className="text-sm text-neutral-500">
           After authentication, the user is redirected to your URL with an <code className="bg-neutral-100 px-1.5 py-0.5 rounded text-xs font-mono">authId</code> query
           parameter. Extract it and exchange it for a JWT on your backend.
@@ -82,9 +86,9 @@ const authId = new URL(window.location.href).searchParams.get("authId");
 
 // Send authId to your backend for the token exchange`}
         />
-      </Section>
+      </DocSection>
 
-      <Section title="4. Exchange authId for a JWT (backend)">
+      <DocSection title="4. Exchange authId for a JWT (backend)">
         <p className="text-sm text-neutral-500">
           Make a server-side POST request to exchange the <code className="bg-neutral-100 px-1.5 py-0.5 rounded text-xs font-mono">authId</code> for a signed JWT.
           The <code className="bg-neutral-100 px-1.5 py-0.5 rounded text-xs font-mono">authId</code> is single-use and expires after 5 minutes.
@@ -104,9 +108,9 @@ const { token, user } = await response.json();
 // token — signed JWT (15 min expiry)
 // user  — { id, email, customerId, role }`}
         />
-      </Section>
+      </DocSection>
 
-      <Section title="5. Authenticate requests with the JWT">
+      <DocSection title="5. Authenticate requests with the JWT">
         <p className="text-sm text-neutral-500">
           Include the JWT as a Bearer token in the <code className="bg-neutral-100 px-1.5 py-0.5 rounded text-xs font-mono">Authorization</code> header
           for all authenticated API requests.
@@ -116,9 +120,9 @@ const { token, user } = await response.json();
           code={`GET /api/your-protected-endpoint HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
         />
-      </Section>
+      </DocSection>
 
-      <Section title="6. Refresh the JWT">
+      <DocSection title="6. Refresh the JWT">
         <p className="text-sm text-neutral-500">
           JWTs expire after 15 minutes. Use the refresh token (stored as an httpOnly cookie by AuthPlug)
           to get a new JWT without re-authenticating the user.
@@ -133,9 +137,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`}
 const { token, user } = await response.json();
 // use the new token going forward`}
         />
-      </Section>
+      </DocSection>
 
-      <Section title="7. Log out">
+      <DocSection title="7. Log out">
         <p className="text-sm text-neutral-500">
           Call the logout endpoint to revoke the refresh token and clear the cookie.
         </p>
@@ -146,12 +150,7 @@ const { token, user } = await response.json();
   credentials: "include",
 });`}
         />
-      </Section>
-
-      <div className="p-4 bg-brand-50 border border-brand-100 rounded-xl text-sm text-brand-700">
-        <strong>Your Company ID:</strong>{" "}
-        <code className="font-mono text-brand-800">{customerId}</code>
-      </div>
+      </DocSection>
     </div>
   );
 }

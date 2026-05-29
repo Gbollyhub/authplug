@@ -25,10 +25,7 @@ export default function Input({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label
-        htmlFor={inputId}
-        className="text-sm font-medium text-neutral-700"
-      >
+      <label htmlFor={inputId} className="text-sm font-medium text-neutral-700">
         {label}
       </label>
       <div className="relative">
@@ -37,7 +34,7 @@ export default function Input({
           type={resolvedType}
           className={[
             "w-full px-4 py-3 rounded-xl border text-neutral-700 text-sm placeholder:text-neutral-300 transition-all duration-150",
-            "focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent",
+            "focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent",
             "disabled:bg-neutral-50 disabled:text-neutral-400 disabled:cursor-not-allowed",
             error
               ? "border-danger-500 bg-danger-50 focus:ring-danger-500"
@@ -56,11 +53,7 @@ export default function Input({
             className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
             tabIndex={-1}
           >
-            {showPassword ? (
-              <EyeSlashIcon className="w-5 h-5" />
-            ) : (
-              <EyeIcon className="w-5 h-5" />
-            )}
+            {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
           </button>
         )}
         {error && !isPassword && (
@@ -69,14 +62,8 @@ export default function Input({
           </div>
         )}
       </div>
-      {error && (
-        <p className="text-xs text-danger-600 flex items-center gap-1">
-          {error}
-        </p>
-      )}
-      {hint && !error && (
-        <p className="text-xs text-neutral-400">{hint}</p>
-      )}
+      {error && <p className="text-xs text-danger-600 flex items-center gap-1">{error}</p>}
+      {hint && !error && <p className="text-xs text-neutral-400">{hint}</p>}
     </div>
   );
 }
